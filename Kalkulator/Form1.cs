@@ -8,7 +8,7 @@ namespace Kalkulator
     public partial class Form1 : Form
     {
         private Point _lastClick;
-        private string _undoArrow = char.ConvertFromUtf32(0x00002190);
+        private readonly string _undoArrow = char.ConvertFromUtf32(0x00002190);
         private bool _decimalMode;
         private string _infix;
         private double _wynik;
