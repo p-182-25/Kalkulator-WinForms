@@ -1,21 +1,22 @@
 ﻿using System;
 using System.Drawing;
+using System.Globalization;
 using System.Windows.Forms;
 
 namespace Kalkulator
 {
     public partial class Form1 : Form
     {
-        Point lastClick;
-        string undoArrow = char.ConvertFromUtf32(0x00002190);
-        bool decimalMode = false;
-        string infix;
-        double wynik;
+        private Point _lastClick;
+        private readonly string _undoArrow = char.ConvertFromUtf32(0x00002190);
+        private bool _decimalMode;
+        private string _infix;
+        private double _wynik;
 
         public Form1()
         {
             InitializeComponent();
-            undo.Text = undoArrow;
+            undo.Text = _undoArrow;
         }
 
         internal static bool CharIsAnOperator(string userInput)
@@ -29,19 +30,17 @@ namespace Kalkulator
 
         private void button_Click(object sender, EventArgs e)
         {
-            Button button = sender as Button;
-
-            if (button.Text != "=")
+            if (sender is Button button && button.Text != @"=")
             {
                 // a. wystąpienie na początku równania: +, *, /, ^ lub )
-                if (result.Text == "0" && (button.Text == "+" || button.Text == "*" || button.Text == "/" || button.Text == "^" || button.Text == ")"))
+                if (result.Text == @"0" && (button.Text == @"+" || button.Text == @"*" || button.Text == @"/" || button.Text == @"^" || button.Text == @")"))
                 {
-                    MessageBox.Show("Proszę wpisać poprawny znak. Pierwszym znakiem równania nie może być: +, *, /, ^ lub ) !", Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show(@"Proszę wpisać poprawny znak. Pierwszym znakiem równania nie może być: +, *, /, ^ lub ) !", Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
                     label1.Focus();
                     return;
                 }
 
-                if (button.Text == undoArrow)
+                if (button.Text == _undoArrow)
                 {
                     if (result.Text.Length > 0)
                     {
@@ -51,16 +50,16 @@ namespace Kalkulator
                     }
                     if (result.Text == "")
                     {
-                        result.Text = "0";
+                        result.Text = @"0";
                         label1.Focus();
                     }
                     return;
                 }
 
-                if (button.Text == "C")
+                if (button.Text == @"C")
                 {
                     result.Clear();
-                    result.Text = "0";
+                    result.Text = @"0";
                     label1.Focus();
                     return;
                 }
@@ -68,19 +67,19 @@ namespace Kalkulator
                 if (CharsCanBeAdjacent(button.Text))
                 {
                     if (CharIsAnOperator(button.Text))
-                        decimalMode = false;
+                        _decimalMode = false;
 
                     if (NumberFormatIsCorrect(button.Text))
                     {
-                        if (result.Text == "0" && button.Text != ".")
+                        if (result.Text == @"0" && button.Text != @".")
                             result.Clear();
 
                         result.AppendText(button.Text);
                         label1.Focus();
                     }
 
-                    if (button.Text == ".")
-                        decimalMode = true;
+                    if (button.Text == @".")
+                        _decimalMode = true;
                 }
             }
             else
@@ -88,7 +87,7 @@ namespace Kalkulator
                 // b. wystąpienie na końcu równania: +, -, *, /, ^, . lub (" + "\r\n");
                 if (CharIsAnOperator(result.Text[result.Text.Length - 1].ToString()) || (result.Text[result.Text.Length - 1].ToString().Equals(".")) || (result.Text[result.Text.Length - 1].ToString().Equals("(")))
                 {
-                    MessageBox.Show("Proszę wpisać poprawny znak. Ostatnim znakiem równania nie może być operator, separator dziesiętny lub lewy nawias!", Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show(@"Proszę wpisać poprawny znak. Ostatnim znakiem równania nie może być operator, separator dziesiętny lub lewy nawias!", Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
                     label1.Focus();
                     return;
                 }
@@ -97,25 +96,25 @@ namespace Kalkulator
 
                 if (!ParenthesesAmountIsEqual(result.Text))
                 {
-                    MessageBox.Show("Proszę wpisać poprawny znak. Liczba lewych i prawych nawiasów nie jest taka sama!", Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show(@"Proszę wpisać poprawny znak. Liczba lewych i prawych nawiasów nie jest taka sama!", Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
                     label1.Focus();
                     return;
                 }
 
                 // ONP - zamiana infix na postfix oraz obliczenie wartości postfix
-                infix = result.Text;
+                _infix = result.Text;
 
                 try
                 {
-                    ONP onp = new ONP(infix);
-                    wynik = onp.PostfixEvaluation(onp.InfixToPostfix());
+                    Onp onp = new Onp(_infix);
+                    _wynik = onp.PostfixEvaluation(onp.InfixToPostfix());
                 }
                 catch
                 {
-                    MessageBox.Show("Wystąpił problem!", "Błąd!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show(@"Wystąpił problem!", @"Błąd!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
 
-                result.Text = wynik.ToString().Replace(',', '.');
+                result.Text = _wynik.ToString(CultureInfo.InvariantCulture).Replace(',', '.');
 
                 label1.Focus();
             }
@@ -128,7 +127,7 @@ namespace Kalkulator
             // c. wystąpienie obok siebie sep. dziesiętnych i/lub operatorów
             if ((CharIsAnOperator(lastChar) || lastChar == ".") && (CharIsAnOperator(userInput) || userInput == "."))
             {
-                MessageBox.Show("Proszę wpisać poprawny znak. Operatory i/lub separatory dziesiętne nie mogą występować obok siebie!", "Błąd!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(@"Proszę wpisać poprawny znak. Operatory i/lub separatory dziesiętne nie mogą występować obok siebie!", @"Błąd!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 label1.Focus();
                 return false;
             }
@@ -136,13 +135,13 @@ namespace Kalkulator
             // d. wystąpienie sep. dziesiętnego bezpośrednio przed lewym lub prawym nawiasem
             if (lastChar == "." && userInput == ")")
             {
-                MessageBox.Show("Proszę wpisać poprawny znak. Prawy nawias nie może wystąpić bezpośrednio po separatorze dziesiętnym!", "Błąd!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(@"Proszę wpisać poprawny znak. Prawy nawias nie może wystąpić bezpośrednio po separatorze dziesiętnym!", @"Błąd!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 label1.Focus();
                 return false;
             }
             if (lastChar == "." && userInput == "(")
             {
-                MessageBox.Show("Proszę wpisać poprawny znak. Lewy nawias nie może wystąpić bezpośrednio po separatorze dziesiętnym!", "Błąd!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(@"Proszę wpisać poprawny znak. Lewy nawias nie może wystąpić bezpośrednio po separatorze dziesiętnym!", @"Błąd!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 label1.Focus();
                 return false;
             }
@@ -150,13 +149,13 @@ namespace Kalkulator
             // e. wystąpienie sep. dziesiętnego bezpośrednio po lewym lub prawym nawiasie
             if (lastChar == "(" && userInput == ".")
             {
-                MessageBox.Show("Proszę wpisać poprawny znak. Separator dziesiętny nie może wystąpić bezpośrednio po lewym nawiasie!", "Błąd!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(@"Proszę wpisać poprawny znak. Separator dziesiętny nie może wystąpić bezpośrednio po lewym nawiasie!", @"Błąd!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 label1.Focus();
                 return false;
             }
             if (lastChar == ")" && userInput == ".")
             {
-                MessageBox.Show("Proszę wpisać poprawny znak. Separator dziesiętny nie może wystąpić bezpośrednio po prawym nawiasie!", "Błąd!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(@"Proszę wpisać poprawny znak. Separator dziesiętny nie może wystąpić bezpośrednio po prawym nawiasie!", @"Błąd!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 label1.Focus();
                 return false;
             }
@@ -164,13 +163,13 @@ namespace Kalkulator
             // f. wystąpienie cyfry bezpośrednio przed lewym lub po prawym nawiasie
             if (Char.IsNumber(Convert.ToChar(lastChar)) && !result.Text.Equals("0") && userInput == "(")
             {
-                MessageBox.Show("Proszę wpisać poprawny znak. Lewy nawias nie może wystąpić bezpośrednio po cyfrze!", "Błąd!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(@"Proszę wpisać poprawny znak. Lewy nawias nie może wystąpić bezpośrednio po cyfrze!", @"Błąd!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 label1.Focus();
                 return false;
             }
             if (lastChar == ")" && Char.IsNumber(Convert.ToChar(userInput)))
             {
-                MessageBox.Show("Proszę wpisać poprawny znak. Cyfra nie może wystąpić bezpośrednio po prawym nawiasie!", "Błąd!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(@"Proszę wpisać poprawny znak. Cyfra nie może wystąpić bezpośrednio po prawym nawiasie!", @"Błąd!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 label1.Focus();
                 return false;
             }
@@ -178,7 +177,7 @@ namespace Kalkulator
             // g. wystąpienie operatora innego niż - bezpośrednio po lewym nawiasie
             if (lastChar == "(" && (userInput == "+" || userInput == "*" || userInput == "/" || userInput == "^"))
             {
-                MessageBox.Show("Proszę wpisać poprawny znak. Operator inny niż - nie może wystąpić bezpośrednio po lewym nawiasie!", "Błąd!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(@"Proszę wpisać poprawny znak. Operator inny niż - nie może wystąpić bezpośrednio po lewym nawiasie!", @"Błąd!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 label1.Focus();
                 return false;
             }
@@ -186,7 +185,7 @@ namespace Kalkulator
             // h. wystąpienie operatora bezpośrednio przed prawym nawiasem
             if (CharIsAnOperator(lastChar) && userInput == ")")
             {
-                MessageBox.Show("Proszę wpisać poprawny znak. Prawy nawias nie może wystąpić bezpośrednio po operatorze!", "Błąd!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(@"Proszę wpisać poprawny znak. Prawy nawias nie może wystąpić bezpośrednio po operatorze!", @"Błąd!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 label1.Focus();
                 return false;
             }
@@ -194,7 +193,7 @@ namespace Kalkulator
             // i. wystąpienie lewego nawiasu bezpośrednio po prawym nawiasie
             if (lastChar == ")" && userInput == "(")
             {
-                MessageBox.Show("Proszę wpisać poprawny znak. Lewy nawias nie może wystąpić bezpośrednio po prawym nawiasie!", "Błąd!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(@"Proszę wpisać poprawny znak. Lewy nawias nie może wystąpić bezpośrednio po prawym nawiasie!", @"Błąd!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 label1.Focus();
                 return false;
             }
@@ -213,7 +212,7 @@ namespace Kalkulator
                 }
                 if (rightBracketsAmount >= leftBracketsAmount)
                 {
-                    MessageBox.Show("Proszę wpisać poprawny znak. Brak korespondującego lewego nawiasu!", "Błąd!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show(@"Proszę wpisać poprawny znak. Brak korespondującego lewego nawiasu!", @"Błąd!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     label1.Focus();
                     return false;
                 }
@@ -231,17 +230,17 @@ namespace Kalkulator
                 oneBeforeLastChar = result.Text[result.Text.Length - 2].ToString();
 
             // k. wystąpienia liczby, która rozpoczyna się 0 w trybie niedziesiętnym
-            if (result.Text.Length > 1 && !Char.IsNumber(Convert.ToChar(oneBeforeLastChar)) && lastChar == "0" && !decimalMode && Char.IsNumber(Convert.ToChar(userInput)))
+            if (result.Text.Length > 1 && !Char.IsNumber(Convert.ToChar(oneBeforeLastChar)) && lastChar == "0" && !_decimalMode && Char.IsNumber(Convert.ToChar(userInput)))
             {
-                MessageBox.Show("Proszę wpisać poprawny znak. Nieprawidłowy format liczby!", "Błąd!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(@"Proszę wpisać poprawny znak. Nieprawidłowy format liczby!", @"Błąd!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 label1.Focus();
                 return false;
             }
 
             // l. wystąpienia liczby, która w częsci dziesiętnej ma separatory dziesiętne
-            if (result.Text.Length > 1 && decimalMode && userInput == ".")
+            if (result.Text.Length > 1 && _decimalMode && userInput == ".")
             {
-                MessageBox.Show("Proszę wpisać poprawny znak. Nieprawidłowy format liczby!", "Błąd!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(@"Proszę wpisać poprawny znak. Nieprawidłowy format liczby!", @"Błąd!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 label1.Focus();
                 return false;
             }
@@ -266,15 +265,15 @@ namespace Kalkulator
 
         private void Form1_MouseDown(object sender, MouseEventArgs e)
         {
-            lastClick = e.Location;
+            _lastClick = e.Location;
         }
 
         private void Form1_MouseMove(object sender, MouseEventArgs e)
         {
             if (e.Button == MouseButtons.Left)
             {
-                this.Left += e.X - lastClick.X;
-                this.Top += e.Y - lastClick.Y;
+                Left += e.X - _lastClick.X;
+                Top += e.Y - _lastClick.Y;
             }
         }
 
@@ -291,7 +290,7 @@ namespace Kalkulator
         private void Minimalizuj_Click(object sender, EventArgs e)
         {
             label1.Focus();
-            this.WindowState = FormWindowState.Minimized;
+            WindowState = FormWindowState.Minimized;
         }
 
         private void Instrukcja_Click(object sender, EventArgs e)
@@ -364,8 +363,6 @@ namespace Kalkulator
                     break;
                 case "=":
                     equal.PerformClick();
-                    break;
-                default:
                     break;
             }
 
