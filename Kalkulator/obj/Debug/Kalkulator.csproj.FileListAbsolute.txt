@@ -1,0 +1,11 @@
+C:\Users\piotrek\Source\Repos\Kalkulator-WinForms\Kalkulator\bin\Debug\Kalkulator.exe.config
+C:\Users\piotrek\Source\Repos\Kalkulator-WinForms\Kalkulator\bin\Debug\Kalkulator.exe
+C:\Users\piotrek\Source\Repos\Kalkulator-WinForms\Kalkulator\bin\Debug\Kalkulator.pdb
+C:\Users\piotrek\Source\Repos\Kalkulator-WinForms\Kalkulator\obj\Debug\Kalkulator.csprojResolveAssemblyReference.cache
+C:\Users\piotrek\Source\Repos\Kalkulator-WinForms\Kalkulator\obj\Debug\Kalkulator.Form1.resources
+C:\Users\piotrek\Source\Repos\Kalkulator-WinForms\Kalkulator\obj\Debug\Kalkulator.Form2.resources
+C:\Users\piotrek\Source\Repos\Kalkulator-WinForms\Kalkulator\obj\Debug\Kalkulator.Properties.Resources.resources
+C:\Users\piotrek\Source\Repos\Kalkulator-WinForms\Kalkulator\obj\Debug\Kalkulator.csproj.GenerateResource.cache
+C:\Users\piotrek\Source\Repos\Kalkulator-WinForms\Kalkulator\obj\Debug\Kalkulator.csproj.CoreCompileInputs.cache
+C:\Users\piotrek\Source\Repos\Kalkulator-WinForms\Kalkulator\obj\Debug\Kalkulator.exe
+C:\Users\piotrek\Source\Repos\Kalkulator-WinForms\Kalkulator\obj\Debug\Kalkulator.pdb
