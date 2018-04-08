@@ -106,7 +106,7 @@ namespace Kalkulator
 
                 try
                 {
-                    ONP onp = new ONP(_infix);
+                    Onp onp = new Onp(_infix);
                     _wynik = onp.PostfixEvaluation(onp.InfixToPostfix());
                 }
                 catch

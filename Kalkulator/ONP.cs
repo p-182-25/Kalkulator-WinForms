@@ -6,13 +6,13 @@ using System.Text;
 
 namespace Kalkulator
 {
-    class ONP
+    class Onp
     {
-        private string userInput;
+        private readonly string _userInput;
 
-        public ONP(string userInput)
+        public Onp(string userInput)
         {
-            this.userInput = userInput;
+            _userInput = userInput;
         }
 
         public Queue<string> InfixToPostfix()
@@ -20,7 +20,7 @@ namespace Kalkulator
             StringBuilder postfixQueueCandidate = new StringBuilder();
             Stack<char> specialTokensStack = new Stack<char>();
             Queue<string> postfixQueue = new Queue<string>();
-            string infix = InfixConversion(userInput);
+            string infix = InfixConversion(_userInput);
 
             foreach (char item in infix)
             {
@@ -103,9 +103,9 @@ namespace Kalkulator
                     }
                     catch
                     {
-                        Console.WriteLine("stack is empty");
+                        Console.WriteLine(@"stack is empty");
                     }
-                    switch (temp.ToString())
+                    switch (temp)
                     {
                         case "+":
                             result.Push(x1 + x2);
@@ -121,8 +121,6 @@ namespace Kalkulator
                             break;
                         case "^":
                             result.Push(Math.Pow(x1, x2));
-                            break;
-                        default:
                             break;
                     }
                 }
